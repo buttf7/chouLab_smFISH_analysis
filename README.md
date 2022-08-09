@@ -6,4 +6,4 @@ This module makes usage of various image segmenation algorithms to analysis smFI
 First on your local machine use git clone to create your version of the repository. 
 
 # Example: git clone
-$git clone https://github.com/buttf7/chouLab_smFISH_analysis.git
+$ git clone https://github.com/buttf7/chouLab_smFISH_analysis.git
