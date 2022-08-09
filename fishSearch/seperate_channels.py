@@ -13,7 +13,7 @@ def seperate_channels(img, img_name):
     
     #channel segmentation
     n_channels = sorted_shape[0]
-    parentDirectory = os.path.abspath(os.path.join(os.getcwd(), os.pardir))
+    parentDirectory = "./data/separated_channels"
     directory = os.path.join(parentDirectory, 'FISH_SEARCH', 'data')
     for i in range(n_channels):
         save_name = f"/channel{i}_{img_name}"
