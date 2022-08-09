@@ -1,4 +1,4 @@
-name: cellpose
+name: fishSearch
 channels:
   - anaconda
   - conda-forge
