@@ -187,7 +187,7 @@ def maxMinCount(fov_results, img_name):
     limitCountCSV = pd.DataFrame([max, min])
     limitCountCSV.to_csv(f'./data/graph_data/cellSpotLimits_{img_name}.csv', index=False)  
 
-def spotIntensity(cell_label, rs_spots):
+def spotIntensity(cell_label, rs_spots, img_name):
     #iterate over each segmented cell
     cell_intensity_results = list()    
     cells = regionprops(cell_label)
@@ -231,4 +231,5 @@ def spotIntensity(cell_label, rs_spots):
         average = sum(spots)/len(spots)
         cell_intensity.append(average)
     
-    return cell_intensity
+    cellIntensityCount = pd.DataFrame(cell_intensity)
+    cellIntensityCount.to_csv(f'./data/graph_data/cellIntensities_{img_name}.csv', index=False)  
