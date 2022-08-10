@@ -1,3 +1,4 @@
+#imports
 from bigfish import stack
 import bigfish.multistack as multistack
 import os
@@ -13,6 +14,7 @@ from cellpose import plot as plt2
 import pandas as pd
 import numpy as np
 import bigfish.segmentation as segmentation
+from skimage.measure import regionprops
 
 
 def read_img():
@@ -185,6 +187,48 @@ def maxMinCount(fov_results, img_name):
     limitCountCSV = pd.DataFrame([max, min])
     limitCountCSV.to_csv(f'./data/graph_data/cellSpotLimits_{img_name}.csv', index=False)  
 
-def spotIntensity(intensity_values):
-    spotIntensities = pd.DataFrame(intensity_values)
-    spotIntensities.to_csv(f'./data/graph_data/spotIntensities{img_name}.csv', index=False)
+def spotIntensity(cell_label, rs_spots):
+    #iterate over each segmented cell
+    cell_intensity_results = list()    
+    cells = regionprops(cell_label)
+    for cell in cells:
+
+        # initialize cell results
+        cell_results = {}
+
+        # get the bounding box of the cell
+        label = cell.label
+        cell_results["cell_id"] = label
+        (min_y, min_x, max_y, max_x) = cell.bbox
+        cell_results["bbox"] = cell.bbox
+
+        # get binary masks of the cell
+        cell_mask = cell_label.copy()
+        cell_mask = (cell_mask == label)    
+
+        spots_in, spots_out = multistack.identify_objects_in_region(cell_mask, rs_spots, ndim=2)
+        cell_intensity_results.append(spots_in)
+        
+    #Get cell Intensities
+    cell_intensity = list()
+    root = tk.Tk()
+    root.withdraw()
+    csv_path = filedialog.askopenfilename()
+    csv_name = csv_path.split("/")
+    csv_name = csv_name[-1]
+    raw = pd.read_csv(csv_path)
+    
+    for cell in cell_intensity_results:
+        spots = list()
+        for spot in cell:
+            x = spot[1]
+            y = spot[0]
+            x_match = raw[raw['x']==x].index.values
+            y_match = raw[raw['y']==y].index.values
+            spot_intensity = raw.at[x_match[0],'intensity']
+            #print(spot_intensity)
+            spots.append(spot_intensity)
+        average = sum(spots)/len(spots)
+        cell_intensity.append(average)
+    
+    return cell_intensity
