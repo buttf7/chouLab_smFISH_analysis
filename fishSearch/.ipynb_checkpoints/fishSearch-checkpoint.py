@@ -1,4 +1,5 @@
 from bigfish import stack
+import bigfish.multistack as multistack
 import os
 import bigfish
 from pathlib import Path
@@ -91,9 +92,9 @@ def rsfish_analysis(RNA_2D):
     csv_name = csv_path.split("/")
     csv_name = csv_name[-1]
     
-    df = df = pd.read_csv(csv_path)
+    df = pd.read_csv(csv_path)
     intensity_values = df['intensity'].tolist()
-    spotIntensity(intensity_values)
+    #spotIntensity(intensity_values)
     df = df.drop(['intensity','t','c'], axis =1)
     df = df[['y','x']]
     rs_spots = df.loc[:, :].values.tolist()
@@ -101,7 +102,7 @@ def rsfish_analysis(RNA_2D):
     plot.plot_detection(RNA_2D, rs_spots, contrast=True,framesize=(40, 40))
     return rs_spots
   
-def cell_extraction(nuc_label, rs_spots, RNA_2D):
+def cell_extraction(nuc_label, cell_label, rs_spots, RNA_2D):
     spots_in, spots_out = multistack.identify_objects_in_region(nuc_label, rs_spots, ndim=2)
     fov_results = multistack.extract_cell(
     cell_label=cell_label, 
