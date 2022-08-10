@@ -50,6 +50,20 @@ def seperate_channels(img, img_name):
             channel = img[:,i,:,:] # 2 channel
             stack.save_image(channel,parentDirectory + save_name)
 
+def generate_projections(img):
+    # Define DAPI Channel
+    DAPI_3D = img[:,0,:,:]
+    DAPI_2D = stack.maximum_projection(DAPI_3D)
+
+    # Probe Channel
+    RNA_3D = img[:,1,:,:]
+    RNA_2D = stack.maximum_projection(RNA_3D)
+    
+    images = [DAPI_2D, RNA_2D]
+    bigfish.plot.plot_images(images,rescale=True, contrast=True)
+    
+    return [DAPI_3D, DAPI_2D, RNA_3D, RNA_2D]
+
 def cell_nuc_segmentation(DAPI_2D, RNA_3D, RNA_2D, diam = 100, thresh=40):
     model = models.Cellpose(gpu=False,model_type='cyto')
     channels = [[3,3]]
@@ -104,6 +118,7 @@ def cell_extraction(nuc_label, rs_spots, RNA_2D):
     print("\r dtype: {0}".format(spots_out.dtype))
     print("number of cells identified: {0}".format(len(fov_results)))
     return fov_results
+
 def cell_level_visualization(fov_results):
     for i, cell_results in enumerate(fov_results):
         # print("cell {0}".format(i))
@@ -123,3 +138,52 @@ def cell_level_visualization(fov_results):
             rna_coord=rna_coord, 
             image=image_contrasted, cell_mask=cell_mask, nuc_mask=nuc_mask, 
             title="Cell {0}".format(i))
+
+def spotCount(fov_results, img_name):
+    averageCount = []
+    img_name = img_name.split('.tif')
+    img_name = img_name[0]
+    for i, cell_results in enumerate(fov_results):
+        # print("cell {0}".format(i))
+
+        # get cell results
+        cell_mask = cell_results["cell_mask"]
+        cell_coord = cell_results["cell_coord"]
+        nuc_mask = cell_results["nuc_mask"]
+        nuc_coord = cell_results["nuc_coord"]
+        rna_coord = cell_results["rna_coord"]
+        image_contrasted = cell_results["image"]
+        averageCount.append(len(rna_coord))
+        
+    spotCountCSV = pd.DataFrame(averageCount)
+    spotCountCSV.to_csv(f'./data/graph_data/cellSpotCount_{img_name}.csv', index=False)
+
+def maxMinCount(fov_results, img_name):
+    max = int()
+    min = int()
+    img_name = img_name.split('.tif')
+    img_name = img_name[0]
+    
+    for i, cell_results in enumerate(fov_results):
+        # print("cell {0}".format(i))
+
+        # get cell results
+        cell_mask = cell_results["cell_mask"]
+        cell_coord = cell_results["cell_coord"]
+        nuc_mask = cell_results["nuc_mask"]
+        nuc_coord = cell_results["nuc_coord"]
+        rna_coord = cell_results["rna_coord"]
+        image_contrasted = cell_results["image"]
+        count = len(rna_coord)
+        
+        if count > max:
+            max = count
+        if count < min:
+            min = count
+            
+    limitCountCSV = pd.DataFrame([max, min])
+    limitCountCSV.to_csv(f'./data/graph_data/cellSpotLimits_{img_name}.csv', index=False)  
+
+def spotIntensity(intensity_values):
+    spotIntensities = pd.DataFrame(intensity_values)
+    spotIntensities.to_csv(f'./data/graph_data/spotIntensities{img_name}.csv', index=False)
