@@ -12,4 +12,4 @@ $ git clone https://github.com/buttf7/chouLab_smFISH_analysis.git
 Ensure that you have conda installed onto your computer and is included in path. Then open terminal/command line is the newly downloaded repository. In the repository use the 'environment.yml' file to create a new conda environment.
 
 ### Example: create Conda environment
-$ conda create --file environment.yml
+$ conda env create --name envname --file=environments.yml
